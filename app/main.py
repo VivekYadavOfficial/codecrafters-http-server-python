@@ -12,6 +12,8 @@ def process_conn_on_thread(conn):
         file_dir = file_path[1]
     else:
         file_dir = file_path[0]
+    if file_dir.startswith("/files"):
+        file_dir = file_dir.replace("/files", "")
     # file_path = None
     # if path:
     #     file_path_split = file_dir.split('/')
@@ -19,7 +21,7 @@ def process_conn_on_thread(conn):
     #         file_path = file_path_split[2]
     #         if file_path:
     try:
-        with open(file_dir, 'rb') as f:
+        with open('/tmp/data/codecrafters.io/http-server-tester/' + file_dir, 'rb') as f:
             file_data = f.read()
             response_body = file_data
             content_length = len(response_body)

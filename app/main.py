@@ -1,7 +1,7 @@
 # Uncomment this to pass the first stage
 import socket
 import threading
-
+import gzip
 
 # function to extract method from request
 def get_method_from_request(request):
@@ -70,12 +70,16 @@ def process_conn_on_thread(conn):
             response_body, content_length, status = read_from_file(file_dir)
             if status:
                 if is_gzip_enabled:
-                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
+                    compressed_response_body = gzip.compress(response_body)
+                    compressed_response_length = len(compressed_response_body)
+                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(compressed_response_length).encode() + b"\r\n\r\n" + compressed_response_body + b"\r\n", socket.MSG_WAITALL)
                 else:
                     conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
             else:
                 if is_gzip_enabled:
-                    conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body.encode() + b"\r\n", socket.MSG_WAITALL)
+                    compressed_response_body = gzip.compress(response_body.encode())
+                    compressed_response_length = len(compressed_response_body)
+                    conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(compressed_response_length).encode() + b"\r\n\r\n" + compressed_response_body + b"\r\n", socket.MSG_WAITALL)
                 else:
                     conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body.encode() + b"\r\n", socket.MSG_WAITALL)
         if method.lower() == 'post':
@@ -97,7 +101,9 @@ def process_conn_on_thread(conn):
                 if header.lower() == 'user-agent':
                     content_length = len(value)
                     if is_gzip_enabled:
-                        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + value.encode() + b"\r\n", socket.MSG_WAITALL)
+                        compressed_response_body = gzip.compress(value.encode())
+                        compressed_content_length = len(compressed_response_body)
+                        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(compressed_content_length).encode() + b"\r\n\r\n" + compressed_response_body + b"\r\n", socket.MSG_WAITALL)
                     else:
                         conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + value.encode() + b"\r\n", socket.MSG_WAITALL)
                     break
@@ -105,14 +111,18 @@ def process_conn_on_thread(conn):
         r_str = "/"
         content_length = len(r_str)
         if is_gzip_enabled:
-            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+            compressed_response_body = gzip.compress(r_str.encode())
+            compressed_content_length = len(compressed_response_body)
+            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(compressed_content_length).encode() + b"\r\n\r\n" + compressed_response_body + b"\r\n", socket.MSG_WAITALL)
         else:
             conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
     elif path.split("/")[1] != "echo":
         r_str = ""
         content_length = len(r_str)
         if is_gzip_enabled:
-            conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+            compressed_response_body = gzip.compress(r_str.encode())
+            compressed_content_length = len(compressed_response_body)
+            conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(compressed_content_length).encode() + b"\r\n\r\n" + compressed_response_body + b"\r\n", socket.MSG_WAITALL)
         else:
             conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
     else:
@@ -120,7 +130,9 @@ def process_conn_on_thread(conn):
         print(r_str)
         content_length = len(r_str)
         if is_gzip_enabled:
-            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+            compressed_response_body = gzip.compress(r_str.encode())
+            compressed_content_length = len(compressed_response_body)
+            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(compressed_content_length).encode() + b"\r\n\r\n" + compressed_response_body + b"\r\n", socket.MSG_WAITALL)
         else:
             conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
     # response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 27\r\n\r\n"

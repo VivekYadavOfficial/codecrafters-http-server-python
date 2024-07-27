@@ -15,15 +15,11 @@ def main():
     request = conn.recv(1024)
     request_line = request.decode('utf-8').split("\r\n")[0]
     path = request_line.split(" ")[1]
-    if path == "/":
-        not_found = False
-    else:
-        not_found = True
     print(path)
-    if not_found:
-        conn.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n", socket.MSG_WAITALL)
-    else:
-        conn.sendall(b"HTTP/1.1 200 OK\r\n\r\n\r\n", socket.MSG_WAITALL)
+    r_str = path.split("/")[2]
+    print(r_str)
+    content_length = len(r_str)
+    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
 
 if __name__ == "__main__":
     main()

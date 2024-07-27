@@ -10,8 +10,13 @@ def main():
     #
     address = ("localhost", 4221)
     server_socket = socket.create_server(address=address, reuse_port=True)
+    # start a infinite loop to keep receiving requests/connections
+    while True:
+        conn, addr = server_socket.accept()
+        conn.sendall(b"HTTP/1.1 200 OK\r\n\r\n", socket.MSG_WAITALL)
     conn, addr = server_socket.accept() # wait for client
     request = conn.recv(1024)
+    conn.sendall(b"HTTP/1.1")
     request_line = request.decode('utf-8').split("\r\n")[0]
     path = request_line.split(" ")[1]
     print(path)

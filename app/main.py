@@ -8,7 +8,7 @@ def process_conn_on_thread(conn):
     request = conn.recv(1024)
     request_line = request.decode('utf-8').split("\r\n")[0]
     path = request_line.split(" ")[1]
-    response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n"
+    response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n"
     conn.sendall(response.encode(), socket.MSG_WAITALL)
     conn.close()
 

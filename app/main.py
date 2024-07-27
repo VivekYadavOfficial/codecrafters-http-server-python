@@ -18,11 +18,13 @@ def main():
     print(path)
     if path.split("/")[1] != "echo":
         r_str = ""
+        content_length = len(r_str)
+        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
     else:
         r_str = path.split("/")[2]
         print(r_str)
     content_length = len(r_str)
-    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+    conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
 
 if __name__ == "__main__":
     main()

@@ -16,8 +16,11 @@ def main():
     request_line = request.decode('utf-8').split("\r\n")[0]
     path = request_line.split(" ")[1]
     print(path)
-    r_str = path.split("/")[2]
-    print(r_str)
+    if path.split("/")[1] != "echo":
+        r_str = ""
+    else:
+        r_str = path.split("/")[2]
+        print(r_str)
     content_length = len(r_str)
     conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
 

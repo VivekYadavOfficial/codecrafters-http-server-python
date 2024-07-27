@@ -45,7 +45,7 @@ def read_from_file(file_dir):
 # create file at give path with request body
 def create_file_from_request_body(filename, request_body):
     try:
-        with open('/tmp/' + filename, 'w') as f:
+        with open('/tmp/data/codecrafters.io/http-server-tester/' + filename, 'w') as f:
             f.write(request_body)
             f.close()
             return True

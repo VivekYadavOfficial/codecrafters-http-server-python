@@ -84,7 +84,7 @@ def process_conn_on_thread(conn):
             for header, value in headers.items():
                 if header.lower() == 'user-agent':
                     content_length = len(value)
-                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + user_agent.encode() + b"\r\n", socket.MSG_WAITALL)
+                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + value.encode() + b"\r\n", socket.MSG_WAITALL)
                     break
     if path == "/":
         r_str = "/"

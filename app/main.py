@@ -27,7 +27,7 @@ def process_conn_on_thread(conn):
     except FileNotFoundError as e:
         response_body = ""
         content_length = len(response_body)
-        conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body.encode() + b"\r\n", socket.MSG_WAITALL)
+        conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body.encode() + b"\r\n", socket.MSG_WAITALL)
     # response_body = file_data
     # content_length = len(response_body)
     # if path == "/user-agent":

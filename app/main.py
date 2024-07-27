@@ -57,6 +57,7 @@ def process_conn_on_thread(conn):
     request = conn.recv(1024)
     method = get_method_from_request(request)
     headers = get_headers_from_request(request)
+    is_gzip_enabled = headers.get('Accept-Encoding', '').lower() == "gzip"
     path = get_path_from_request(request)
     file_path = path.split("http://localhost:4221")
     if len(file_path) > 1:
@@ -68,39 +69,62 @@ def process_conn_on_thread(conn):
         if method.lower() == 'get':
             response_body, content_length, status = read_from_file(file_dir)
             if status:
-                conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
+                if is_gzip_enabled:
+                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
+                else:
+                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
             else:
-                conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body.encode() + b"\r\n", socket.MSG_WAITALL)
+                if is_gzip_enabled:
+                    conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body.encode() + b"\r\n", socket.MSG_WAITALL)
+                else:
+                    conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body.encode() + b"\r\n", socket.MSG_WAITALL)
         if method.lower() == 'post':
             request_body = get_request_body_from_request(request)
             status = create_file_from_request_body(file_dir, request_body)
             if status:
-                conn.sendall(b"HTTP/1.1 201 Created\r\n\r\n", socket.MSG_WAITALL)
+                if is_gzip_enabled:
+                    conn.sendall(b"HTTP/1.1 201 Created\r\nContent-Encoding: gzip\r\n\r\n", socket.MSG_WAITALL)
+                else:
+                    conn.sendall(b"HTTP/1.1 201 Created\r\n\r\n", socket.MSG_WAITALL)
             else:
-                conn.sendall(b"HTTP/1.1 500 Internal Server Error\r\n\r\n", socket.MSG_WAITALL)
-
+                if is_gzip_enabled:
+                    conn.sendall(b"HTTP/1.1 500 Internal Server Error\r\nContent-Encoding: gzip\r\n\r\n", socket.MSG_WAITALL)
+                else:
+                    conn.sendall(b"HTTP/1.1 500 Internal Server Error\r\n\r\n", socket.MSG_WAITALL)
     if path == "/user-agent":
             # loop through and find which header is user-agent
             for header, value in headers.items():
                 if header.lower() == 'user-agent':
                     content_length = len(value)
-                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + value.encode() + b"\r\n", socket.MSG_WAITALL)
+                    if is_gzip_enabled:
+                        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + value.encode() + b"\r\n", socket.MSG_WAITALL)
+                    else:
+                        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + value.encode() + b"\r\n", socket.MSG_WAITALL)
                     break
     if path == "/":
         r_str = "/"
         content_length = len(r_str)
-        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        if is_gzip_enabled:
+            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        else:
+            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
     elif path.split("/")[1] != "echo":
         r_str = ""
         content_length = len(r_str)
-        conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        if is_gzip_enabled:
+            conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        else:
+            conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
     else:
         r_str = path.split("/")[2]
         print(r_str)
         content_length = len(r_str)
-        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
-    response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 27\r\n\r\n"
-    conn.sendall(response.encode(), socket.MSG_WAITALL)
+        if is_gzip_enabled:
+            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Encoding: gzip\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        else:
+            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+    # response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 27\r\n\r\n"
+    # conn.sendall(response.encode(), socket.MSG_WAITALL)
     conn.close()
 
 def main():

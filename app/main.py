@@ -14,7 +14,6 @@ def main():
     while True:
         conn, addr = server_socket.accept() # wait for client
         request = conn.recv(1024)
-        conn.sendall(b"HTTP/1.1")
         request_line = request.decode('utf-8').split("\r\n")[0]
         path = request_line.split(" ")[1]
         print(path)

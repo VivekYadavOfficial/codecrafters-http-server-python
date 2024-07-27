@@ -57,30 +57,30 @@ def main():
         # conn.close()
         # print(path)
         # # check if path is user-agent
-        if path == "/user-agent":
-            # extract header from request
-            headers = request.decode('utf-8').split("\r\n\r\n")[0].split("\r\n")[1:]
-            # loop through and find which header is user-agent
-            for header in headers:
-                if header.split(":")[0].lower() == 'user-agent':
-                    user_agent = header.split(":")[1]
-                    user_agent = user_agent.strip()
-                    content_length = len(user_agent)
-                    conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + user_agent.encode() + b"\r\n", socket.MSG_WAITALL)
+        # if path == "/user-agent":
+        #     # extract header from request
+        #     headers = request.decode('utf-8').split("\r\n\r\n")[0].split("\r\n")[1:]
+        #     # loop through and find which header is user-agent
+        #     for header in headers:
+        #         if header.split(":")[0].lower() == 'user-agent':
+        #             user_agent = header.split(":")[1]
+        #             user_agent = user_agent.strip()
+        #             content_length = len(user_agent)
+        #             conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + user_agent.encode() + b"\r\n", socket.MSG_WAITALL)
 
-        if path == "/":
-            r_str = "/"
-            content_length = len(r_str)
-            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
-        elif path.split("/")[1] != "echo":
-            r_str = ""
-            content_length = len(r_str)
-            conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
-        else:
-            r_str = path.split("/")[2]
-            print(r_str)
-            content_length = len(r_str)
-            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        # if path == "/":
+        #     r_str = "/"
+        #     content_length = len(r_str)
+        #     conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        # elif path.split("/")[1] != "echo":
+        #     r_str = ""
+        #     content_length = len(r_str)
+        #     conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
+        # else:
+        #     r_str = path.split("/")[2]
+        #     print(r_str)
+        #     content_length = len(r_str)
+        #     conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + r_str.encode() + b"\r\n", socket.MSG_WAITALL)
 
 if __name__ == "__main__":
     main()

@@ -16,7 +16,7 @@ def main():
         request = conn.recv(1024)
         request_line = request.decode('utf-8').split("\r\n")[0]
         path = request_line.split(" ")[1]
-        conn.sendall(b"HTTP/1.1 200 OK\r\n\r\n\r\n")
+        conn.sendall(b"HTTP/1.1 200 OK\r\n\r\n\r\n", socket.MSG_WAITALL)
         print(path)
         # check if path is user-agent
         if path == "/user-agent":

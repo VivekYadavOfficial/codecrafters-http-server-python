@@ -57,7 +57,7 @@ def process_conn_on_thread(conn):
     request = conn.recv(1024)
     method = get_method_from_request(request)
     headers = get_headers_from_request(request)
-    is_gzip_enabled = headers.get('Accept-Encoding', '').lower() == "gzip"
+    is_gzip_enabled = headers.get('Accept-Encoding', '').lower().find("gzip") != -1
     path = get_path_from_request(request)
     file_path = path.split("http://localhost:4221")
     if len(file_path) > 1:

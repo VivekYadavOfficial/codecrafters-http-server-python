@@ -21,7 +21,7 @@ def main():
         not_found = True
     print(path)
     if not_found:
-        conn.sendall(b"HTTP/1.1 404 NOT FOUND\r\n\r\n", socket.MSG_WAITALL)
+        conn.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n", socket.MSG_WAITALL)
     else:
         conn.sendall(b"HTTP/1.1 200 OK\r\n\r\n\r\n", socket.MSG_WAITALL)
 

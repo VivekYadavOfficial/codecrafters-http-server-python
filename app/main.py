@@ -25,7 +25,7 @@ def process_conn_on_thread(conn):
             file_data = f.read()
             response_body = file_data
             content_length = len(response_body)
-            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
+            conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
     except FileNotFoundError as e:
         response_body = ""
         content_length = len(response_body)

@@ -13,7 +13,7 @@ def main():
     # start a infinite loop to keep receiving requests/connections
     while True:
         conn, addr = server_socket.accept()
-        conn.sendall(b"HTTP/1.1 200 OK\r\n\r\n", socket.MSG_WAITALL)
+        conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n", socket.MSG_WAITALL)
     conn, addr = server_socket.accept() # wait for client
     request = conn.recv(1024)
     conn.sendall(b"HTTP/1.1")

@@ -1,6 +1,16 @@
 # Uncomment this to pass the first stage
 import socket
+import threading
 
+
+# using thread to handle multiple connections concurrently
+def process_conn_on_thread(conn):
+    request = conn.recv(1024)
+    request_line = request.decode('utf-8').split("\r\n")[0]
+    path = request_line.split(" ")[1]
+    response = "HTTP/1.1 200 OK\r\n\r\n"
+    conn.sendall(response.encode(), socket.MSG_WAITALL)
+    conn.close()
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -11,14 +21,14 @@ def main():
     address = ("localhost", 4221)
     server_socket = socket.create_server(address=address, reuse_port=True)
     # start a infinite loop to keep receiving requests/connections
+    
     while True:
         conn, addr = server_socket.accept() # wait for client
-        request = conn.recv(1024)
-        request_line = request.decode('utf-8').split("\r\n")[0]
-        path = request_line.split(" ")[1]
-        response = "HTTP/1.1 200 OK\r\n\r\n"
-        conn.sendall(response.encode(), socket.MSG_WAITALL)
-        conn.close()
+        # request = conn.recv(1024) # receive data
+        client = threading.Thread(target=process_conn_on_thread, args=(conn,))
+        client.start()
+        # conn.sendall(response.encode(), socket.MSG_WAITALL)
+        # conn.close()
         # print(path)
         # # check if path is user-agent
         # if path == "/user-agent":

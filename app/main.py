@@ -66,7 +66,7 @@ def process_conn_on_thread(conn):
     if file_dir.startswith("/files"):
         file_dir = file_dir.replace("/files", "")
         if method.lower() == 'get':
-            response_body, content_length, status = read_from_file()
+            response_body, content_length, status = read_from_file(file_dir)
             if status:
                 conn.sendall(b"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: " + str(content_length).encode() + b"\r\n\r\n" + response_body + b"\r\n", socket.MSG_WAITALL)
             else:

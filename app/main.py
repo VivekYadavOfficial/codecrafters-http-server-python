@@ -18,6 +18,7 @@ def main():
         path = request_line.split(" ")[1]
         response = "HTTP/1.1 200 OK\r\n\r\n"
         conn.sendall(response.encode(), socket.MSG_WAITALL)
+        conn.close()
         print(path)
         # check if path is user-agent
         if path == "/user-agent":
